@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+
+<head>
+    <link rel="stylesheet" href="mandelbrot.css">
+    <title>
+        mandelbrot-visualizer
+    </title>
+</head>
+
+<body>
+    <div id="content">
+        <canvas id="canvas"></canvas>
+        <div id="content-wrapper">
+            <select id="color-select">
+                <option value="red">red</option>
+                <option value="green">green</option>
+                <option value="blue">blue</option>
+                <option value="purple">purple</option>
+                <option value="orange">orange</option>
+                <option value="pink">pink</option>
+                <option value="brown">brown</option>
+                <option value="yellow">yellow</option>
+                <option value="cyan">cyan</option>
+            </select>
+            <button id="download-button" class="button">Download image</button>
+            <button id="generate-button" class="button">Generate mandelbrot</button>
+        </div>
+        <script src="/modules/complex.js"></script>
+        <script src="mandelbrot.js"></script>
+    </div>
+</body>
+
+</html>
