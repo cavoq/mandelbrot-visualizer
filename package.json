@@ -1,5 +1,5 @@
 {
-    "name": "mandelbrotset",
+    "name": "mandelbrot-visualizer",
     "version": "1.0.0",
     "description": "Visualization of the Mandelbrot",
     "main": "server.js",
