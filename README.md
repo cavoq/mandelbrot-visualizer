@@ -6,6 +6,7 @@ Visualizer for the Mandelbrot set with following functionality:
 
 ## Preview
 
+![Bildschirmfoto vom 2022-03-23 22-22-58](https://user-images.githubusercontent.com/61215846/159800797-32fd6a9f-e117-470e-9361-a53e0ced978a.png)
 
 
 ## Requirements
