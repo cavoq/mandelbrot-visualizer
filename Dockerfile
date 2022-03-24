@@ -9,5 +9,6 @@ ENV PORT="8000"
 EXPOSE $PORT
 
 RUN npm install express -g
+RUN npm install
 
 CMD ["npm", "start"]
