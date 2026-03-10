@@ -127,8 +127,21 @@ function mandelbrot(real, imaginary, maxIteration) {
 function getColor(color, escapeValue, maxIteration) {
     const palette = PALETTES[color] || PALETTES.blue
     const normalized = Math.max(0, Math.min(1, escapeValue / maxIteration))
-    const eased = Math.pow(normalized, 0.82)
-    const scaled = eased * (palette.length - 1)
+    const baseColor = samplePalette(palette, Math.pow(normalized, 0.74))
+    const accentColor = samplePalette(palette, (normalized * 3.4 + 0.18) % 1)
+    const contour = Math.pow(0.5 + 0.5 * Math.sin(escapeValue * 0.32), 1.35)
+    const glow = Math.pow(normalized, 0.55)
+    const mixAmount = 0.28 + contour * 0.42
+
+    return [
+        clampColor(baseColor[0] * (0.7 + glow * 0.55) + accentColor[0] * mixAmount),
+        clampColor(baseColor[1] * (0.7 + glow * 0.55) + accentColor[1] * mixAmount),
+        clampColor(baseColor[2] * (0.72 + glow * 0.48) + accentColor[2] * mixAmount)
+    ]
+}
+
+function samplePalette(palette, position) {
+    const scaled = Math.max(0, Math.min(0.999999, position)) * (palette.length - 1)
     const index = Math.floor(scaled)
     const mix = scaled - index
     const start = palette[index]
@@ -143,4 +156,8 @@ function getColor(color, escapeValue, maxIteration) {
 
 function interpolate(start, end, amount) {
     return Math.round(start + (end - start) * amount)
+}
+
+function clampColor(value) {
+    return Math.max(0, Math.min(255, Math.round(value)))
 }
