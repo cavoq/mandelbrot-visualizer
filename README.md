@@ -1,20 +1,49 @@
-# mandelbrot-visualizer
-Visualizer for the Mandelbrot set with following functionality:
+# 🌀 mandelbrot-visualizer
 
-* Download the generated image
-* Generate the Mandelbrot set in different colors
+A small web application for rendering and exploring the Mandelbrot set in the browser.
 
-## Preview
+The project serves a static frontend through a lightweight Express server and provides a simple interface for generating fractal images in different color palettes.
 
-![Bildschirmfoto vom 2022-03-23 22-22-58](https://user-images.githubusercontent.com/61215846/159800797-32fd6a9f-e117-470e-9361-a53e0ced978a.png)
+## Features
 
+- Render the Mandelbrot set directly in the browser
+- Switch between multiple color themes
+- Download the generated image as a JPEG
+- Run locally with a minimal Node.js setup
 
-## Requirements
+## 📷 Preview
 
-For this script to work, you need to have [Docker](https://www.docker.com/products/docker-desktop) installed
+![Mandelbrot Visualizer preview](https://user-images.githubusercontent.com/61215846/159800797-32fd6a9f-e117-470e-9361-a53e0ced978a.png)
 
-## Usage
+## 🚀 Getting Started
 
-See make *help*
+### Prerequisites
 
-![image](https://user-images.githubusercontent.com/61215846/227368805-64ab06fe-ded7-4f97-a839-301685d79ff9.png)
+- Node.js
+- npm
+
+### Install
+
+```bash
+npm ci
+```
+
+Install the project dependencies to get the app ready to run.
+
+### Run locally
+
+```bash
+npm start
+```
+
+Start the local server and open the application in your browser.
+
+By default, the application starts on `http://127.0.0.1:8001`.
+
+## 🐳 Docker
+
+This repository includes Docker-related files, but the local Node.js workflow is the primary way to run the project.
+
+## 📄 License
+
+This project is licensed under the terms of the [MIT License](LICENSE).
