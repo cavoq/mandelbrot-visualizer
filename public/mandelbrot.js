@@ -17,6 +17,10 @@ const ZOOM_STEP = 0.8
 let realSet = { ...DEFAULT_REAL_SET }
 let imaginarySet = { ...DEFAULT_IMAGINARY_SET }
 let renderFrame = null
+let isDragging = false
+let dragStart = null
+let dragStartRealSet = null
+let dragStartImaginarySet = null
 
 function mandelbrot(real, imaginary) {
     let zReal = 0
@@ -135,6 +139,25 @@ function resetView() {
     scheduleRender()
 }
 
+function panView(deltaX, deltaY) {
+    const realRange = dragStartRealSet.max - dragStartRealSet.min
+    const imaginaryRange = dragStartImaginarySet.max - dragStartImaginarySet.min
+    const realOffset = (deltaX / canvas.width) * realRange
+    const imaginaryOffset = (deltaY / canvas.height) * imaginaryRange
+
+    realSet = {
+        min: dragStartRealSet.min - realOffset,
+        max: dragStartRealSet.max - realOffset
+    }
+
+    imaginarySet = {
+        min: dragStartImaginarySet.min - imaginaryOffset,
+        max: dragStartImaginarySet.max - imaginaryOffset
+    }
+
+    scheduleRender()
+}
+
 window.addEventListener('resize', () => {
     ctx.canvas.height = window.innerHeight / 1.5
     ctx.canvas.width = window.innerWidth / 1.5
@@ -163,3 +186,40 @@ canvas.addEventListener('wheel', (event) => {
     const factor = event.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP
     zoomAtPoint(event.clientX - rect.left, event.clientY - rect.top, factor)
 }, { passive: false })
+
+canvas.addEventListener('mousedown', (event) => {
+    if (event.button === 0) {
+        isDragging = true
+        dragStart = { x: event.clientX, y: event.clientY }
+        dragStartRealSet = { ...realSet }
+        dragStartImaginarySet = { ...imaginarySet }
+        canvas.style.cursor = 'grabbing'
+    }
+
+    if (event.button === 1) {
+        event.preventDefault()
+        resetView()
+    }
+})
+
+canvas.addEventListener('mousemove', (event) => {
+    if (!isDragging) {
+        return
+    }
+
+    panView(event.clientX - dragStart.x, event.clientY - dragStart.y)
+})
+
+window.addEventListener('mouseup', () => {
+    isDragging = false
+    dragStart = null
+    dragStartRealSet = null
+    dragStartImaginarySet = null
+    canvas.style.cursor = 'grab'
+})
+
+canvas.addEventListener('mouseleave', () => {
+    if (!isDragging) {
+        canvas.style.cursor = 'grab'
+    }
+})

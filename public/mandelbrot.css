@@ -16,7 +16,7 @@ body {
     border-width: 2px;
     border-radius: 2px;
     border-color: white;
-    cursor: crosshair;
+    cursor: grab;
 }
 
 #zoom-help {
