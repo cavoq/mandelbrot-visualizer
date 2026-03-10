@@ -1,5 +1,6 @@
 body {
     background-color: black;
+    font-family: Arial, sans-serif;
 }
 
 #content {
@@ -15,13 +16,21 @@ body {
     border-width: 2px;
     border-radius: 2px;
     border-color: white;
+    cursor: crosshair;
+}
+
+#zoom-help {
+    color: white;
+    text-align: center;
+    margin: 10px 0 0;
 }
 
 #content-wrapper {
-    height: 50px;
+    min-height: 50px;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    flex-wrap: wrap;
     margin-top: 10px;
 }
 

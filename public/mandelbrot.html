@@ -12,6 +12,7 @@
 <body>
     <div id="content">
         <canvas id="canvas"></canvas>
+        <p id="zoom-help">Use the mouse wheel over the canvas to zoom in and out. Use reset to return to the default view.</p>
         <div id="content-wrapper">
             <select id="color-select">
                 <option value="red">red</option>
@@ -26,6 +27,7 @@
             </select>
             <button id="download-button" class="button">Download image</button>
             <button id="generate-button" class="button">Generate mandelbrot</button>
+            <button id="reset-button" class="button">Reset view</button>
         </div>
         <script src="/modules/complex.js"></script>
         <script src="mandelbrot.js"></script>
