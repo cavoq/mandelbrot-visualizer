@@ -7,9 +7,9 @@ The project serves a static frontend through a lightweight Express server and pr
 ## Features
 
 - Render the Mandelbrot set directly in the browser
+- Explore Mandelbrot with zoom functionality
 - Switch between multiple color themes
 - Download the generated image as a JPEG
-- Run locally with a minimal Node.js setup
 
 ## 📷 Preview
 
