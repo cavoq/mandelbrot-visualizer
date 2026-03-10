@@ -16,6 +16,7 @@ const DEFAULT_REAL_SET = { min: -2, max: 1 }
 const DEFAULT_IMAGINARY_SET = { min: -1, max: 1 }
 const ZOOM_STEP = 0.8
 const DRAG_RENDER_SCALE = 0.5
+const WHEEL_SETTLE_DELAY = 120
 
 let realSet = { ...DEFAULT_REAL_SET }
 let imaginarySet = { ...DEFAULT_IMAGINARY_SET }
@@ -29,6 +30,7 @@ let isDragging = false
 let dragStart = null
 let dragStartRealSet = null
 let dragStartImaginarySet = null
+let wheelRenderTimeout = null
 
 const renderWorker = new Worker('mandelbrot-worker.js')
 
@@ -55,7 +57,7 @@ renderWorker.onmessage = (event) => {
 }
 
 function getRenderDimensions(quality) {
-    if (quality === 'drag') {
+    if (quality === 'drag' || quality === 'interactive') {
         return {
             width: Math.max(1, Math.floor(canvas.width * DRAG_RENDER_SCALE)),
             height: Math.max(1, Math.floor(canvas.height * DRAG_RENDER_SCALE))
@@ -127,7 +129,19 @@ function zoomAtPoint(x, y, factor) {
         max: point.imaginary + imaginaryRange / 2
     }
 
-    scheduleRender('full')
+    scheduleRender('interactive')
+    scheduleWheelSettleRender()
+}
+
+function scheduleWheelSettleRender() {
+    if (wheelRenderTimeout !== null) {
+        window.clearTimeout(wheelRenderTimeout)
+    }
+
+    wheelRenderTimeout = window.setTimeout(() => {
+        wheelRenderTimeout = null
+        scheduleRender('full')
+    }, WHEEL_SETTLE_DELAY)
 }
 
 function resetView() {
