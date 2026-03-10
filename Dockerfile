@@ -1,13 +1,15 @@
-FROM node:12.16-alpine
+FROM node:22-alpine
 
-COPY . /mandelbrot
-WORKDIR /mandelbrot/server/
+WORKDIR /app
 
-ENV HOST="0.0.0.0"
-ENV PORT="8000"
+COPY package*.json ./
+RUN npm ci --omit=dev
 
-EXPOSE $PORT
+COPY . .
 
-RUN npm install
+ENV HOST=0.0.0.0
+ENV PORT=7000
+
+EXPOSE 7000
 
 CMD ["npm", "start"]
