@@ -4,6 +4,8 @@ let downloadButton = document.getElementById('download-button')
 let generateButton = document.getElementById('generate-button')
 let resetButton = document.getElementById('reset-button')
 let currentColor = document.getElementById('color-select')
+let renderBufferCanvas = document.createElement('canvas')
+let renderBufferContext = renderBufferCanvas.getContext('2d')
 
 ctx.canvas.width = window.innerWidth / 1.5
 ctx.canvas.height = window.innerHeight / 1.5
@@ -13,14 +15,16 @@ let MAX_ITERATION = 150
 const DEFAULT_REAL_SET = { min: -2, max: 1 }
 const DEFAULT_IMAGINARY_SET = { min: -1, max: 1 }
 const ZOOM_STEP = 0.8
+const DRAG_RENDER_SCALE = 0.5
 
 let realSet = { ...DEFAULT_REAL_SET }
 let imaginarySet = { ...DEFAULT_IMAGINARY_SET }
 let renderFrame = null
 let renderSequence = 0
 let activeRenderId = 0
+let scheduledRenderQuality = 'full'
 let renderInFlight = false
-let pendingRender = false
+let pendingRenderQuality = null
 let isDragging = false
 let dragStart = null
 let dragStartRealSet = null
@@ -35,30 +39,51 @@ renderWorker.onmessage = (event) => {
 
     if (renderId === activeRenderId) {
         const image = new ImageData(new Uint8ClampedArray(pixels), width, height)
-        ctx.putImageData(image, 0, 0)
+        renderBufferCanvas.width = width
+        renderBufferCanvas.height = height
+        renderBufferContext.putImageData(image, 0, 0)
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.imageSmoothingEnabled = false
+        ctx.drawImage(renderBufferCanvas, 0, 0, canvas.width, canvas.height)
     }
 
-    if (pendingRender) {
-        pendingRender = false
-        render()
+    if (pendingRenderQuality !== null) {
+        const quality = pendingRenderQuality
+        pendingRenderQuality = null
+        render(quality)
     }
 }
 
-function render() {
+function getRenderDimensions(quality) {
+    if (quality === 'drag') {
+        return {
+            width: Math.max(1, Math.floor(canvas.width * DRAG_RENDER_SCALE)),
+            height: Math.max(1, Math.floor(canvas.height * DRAG_RENDER_SCALE))
+        }
+    }
+
+    return {
+        width: canvas.width,
+        height: canvas.height
+    }
+}
+
+function render(quality = 'full') {
     renderFrame = null
     if (renderInFlight) {
-        pendingRender = true
+        pendingRenderQuality = pendingRenderQuality === 'full' || quality === 'full' ? 'full' : quality
         return
     }
 
     const renderId = ++renderSequence
+    const dimensions = getRenderDimensions(quality)
     activeRenderId = renderId
     renderInFlight = true
 
     renderWorker.postMessage({
         renderId,
-        width: canvas.width,
-        height: canvas.height,
+        width: dimensions.width,
+        height: dimensions.height,
         realSet,
         imaginarySet,
         color: currentColor.value,
@@ -66,13 +91,17 @@ function render() {
     })
 }
 
-function scheduleRender() {
+function scheduleRender(quality = 'full') {
     if (renderFrame !== null) {
+        scheduledRenderQuality = scheduledRenderQuality === 'full' || quality === 'full' ? 'full' : quality
         return
     }
 
+    scheduledRenderQuality = quality
     renderFrame = window.requestAnimationFrame(() => {
-        render()
+        const nextQuality = scheduledRenderQuality
+        scheduledRenderQuality = 'full'
+        render(nextQuality)
     })
 }
 
@@ -98,13 +127,13 @@ function zoomAtPoint(x, y, factor) {
         max: point.imaginary + imaginaryRange / 2
     }
 
-    scheduleRender()
+    scheduleRender('full')
 }
 
 function resetView() {
     realSet = { ...DEFAULT_REAL_SET }
     imaginarySet = { ...DEFAULT_IMAGINARY_SET }
-    scheduleRender()
+    scheduleRender('full')
 }
 
 function panView(deltaX, deltaY) {
@@ -123,13 +152,13 @@ function panView(deltaX, deltaY) {
         max: dragStartImaginarySet.max - imaginaryOffset
     }
 
-    scheduleRender()
+    scheduleRender('drag')
 }
 
 window.addEventListener('resize', () => {
     ctx.canvas.height = window.innerHeight / 1.5
     ctx.canvas.width = window.innerWidth / 1.5
-    scheduleRender()
+    scheduleRender('full')
 })
 
 downloadButton.addEventListener('click', () => {
@@ -141,7 +170,7 @@ downloadButton.addEventListener('click', () => {
 })
 
 generateButton.addEventListener('click', () => {
-    scheduleRender()
+    scheduleRender('full')
 })
 
 resetButton.addEventListener('click', () => {
@@ -149,7 +178,7 @@ resetButton.addEventListener('click', () => {
 })
 
 currentColor.addEventListener('change', () => {
-    scheduleRender()
+    scheduleRender('full')
 })
 
 canvas.addEventListener('wheel', (event) => {
@@ -189,11 +218,16 @@ canvas.addEventListener('mousemove', (event) => {
 })
 
 window.addEventListener('mouseup', () => {
+    const wasDragging = isDragging
     isDragging = false
     dragStart = null
     dragStartRealSet = null
     dragStartImaginarySet = null
     canvas.style.cursor = 'grab'
+
+    if (wasDragging) {
+        scheduleRender('full')
+    }
 })
 
 canvas.addEventListener('mouseleave', () => {
@@ -202,4 +236,4 @@ canvas.addEventListener('mouseleave', () => {
     }
 })
 
-scheduleRender()
+scheduleRender('full')
