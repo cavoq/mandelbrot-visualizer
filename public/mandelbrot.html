@@ -10,27 +10,55 @@
 </head>
 
 <body>
-    <div id="content">
-        <canvas id="canvas"></canvas>
-        <p id="zoom-help">Use the mouse wheel to zoom, drag with the left mouse button to pan, and click the mouse wheel to reset the view.</p>
-        <div id="content-wrapper">
-            <select id="color-select">
-                <option value="red">red</option>
-                <option value="green">green</option>
-                <option value="blue">blue</option>
-                <option value="purple">purple</option>
-                <option value="orange">orange</option>
-                <option value="pink">pink</option>
-                <option value="brown">brown</option>
-                <option value="yellow">yellow</option>
-                <option value="cyan">cyan</option>
-            </select>
-            <button id="download-button" class="button">Download image</button>
-            <button id="generate-button" class="button">Generate mandelbrot</button>
-            <button id="reset-button" class="button">Reset view</button>
-        </div>
+    <main id="app">
+        <section id="intro">
+            <p class="eyebrow">Fractal Explorer</p>
+            <h1>mandelbrot-visualizer</h1>
+            <p class="lede">Explore the Mandelbrot set with wheel zoom, drag panning, and fast worker-backed rendering.</p>
+        </section>
+
+        <section id="workspace">
+            <div id="viewer-panel">
+                <div id="status-bar">
+                    <span id="render-status" class="status-pill">Ready</span>
+                    <span id="quality-status" class="status-detail">Full quality</span>
+                </div>
+                <canvas id="canvas"></canvas>
+            </div>
+
+            <aside id="control-panel">
+                <div class="panel-section">
+                    <p class="section-label">Palette</p>
+                    <select id="color-select">
+                        <option value="red">Red</option>
+                        <option value="green">Green</option>
+                        <option value="blue">Blue</option>
+                        <option value="purple">Purple</option>
+                        <option value="orange">Orange</option>
+                        <option value="pink">Pink</option>
+                        <option value="brown">Brown</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="cyan">Cyan</option>
+                    </select>
+                </div>
+
+                <div class="panel-section">
+                    <p class="section-label">Actions</p>
+                    <div id="content-wrapper">
+                        <button id="generate-button" class="button">Render</button>
+                        <button id="reset-button" class="button">Reset View</button>
+                        <button id="download-button" class="button">Download JPG</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <p class="section-label">Controls</p>
+                    <p id="zoom-help">Use the mouse wheel to zoom, drag with the left mouse button to pan, and click the mouse wheel to reset the view.</p>
+                </div>
+            </aside>
+        </section>
         <script src="mandelbrot.js"></script>
-    </div>
+    </main>
 </body>
 
 </html>

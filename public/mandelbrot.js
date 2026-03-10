@@ -4,13 +4,12 @@ let downloadButton = document.getElementById('download-button')
 let generateButton = document.getElementById('generate-button')
 let resetButton = document.getElementById('reset-button')
 let currentColor = document.getElementById('color-select')
+let renderStatus = document.getElementById('render-status')
+let qualityStatus = document.getElementById('quality-status')
 let renderBufferCanvas = document.createElement('canvas')
 let renderBufferContext = renderBufferCanvas.getContext('2d')
 
-ctx.canvas.width = window.innerWidth / 1.5
-ctx.canvas.height = window.innerHeight / 1.5
-
-let MAX_ITERATION = 150
+let MAX_ITERATION = 220
 
 const DEFAULT_REAL_SET = { min: -2, max: 1 }
 const DEFAULT_IMAGINARY_SET = { min: -1, max: 1 }
@@ -34,6 +33,18 @@ let wheelRenderTimeout = null
 
 const renderWorker = new Worker('mandelbrot-worker.js')
 
+function resizeCanvas() {
+    const width = Math.min(window.innerWidth * 0.9, 980)
+    const height = Math.min(window.innerHeight * 0.72, 760)
+    ctx.canvas.width = Math.max(320, Math.floor(width))
+    ctx.canvas.height = Math.max(240, Math.floor(height))
+}
+
+function updateRenderStatus(label, detail) {
+    renderStatus.textContent = label
+    qualityStatus.textContent = detail
+}
+
 renderWorker.onmessage = (event) => {
     const { renderId, width, height, pixels } = event.data
 
@@ -48,6 +59,8 @@ renderWorker.onmessage = (event) => {
         ctx.imageSmoothingEnabled = false
         ctx.drawImage(renderBufferCanvas, 0, 0, canvas.width, canvas.height)
     }
+
+    updateRenderStatus('Ready', width === canvas.width ? 'Full quality' : 'Interactive preview')
 
     if (pendingRenderQuality !== null) {
         const quality = pendingRenderQuality
@@ -81,6 +94,7 @@ function render(quality = 'full') {
     const dimensions = getRenderDimensions(quality)
     activeRenderId = renderId
     renderInFlight = true
+    updateRenderStatus('Rendering', quality === 'full' ? 'Full quality' : 'Interactive preview')
 
     renderWorker.postMessage({
         renderId,
@@ -170,8 +184,7 @@ function panView(deltaX, deltaY) {
 }
 
 window.addEventListener('resize', () => {
-    ctx.canvas.height = window.innerHeight / 1.5
-    ctx.canvas.width = window.innerWidth / 1.5
+    resizeCanvas()
     scheduleRender('full')
 })
 
@@ -250,4 +263,6 @@ canvas.addEventListener('mouseleave', () => {
     }
 })
 
+resizeCanvas()
+updateRenderStatus('Ready', 'Full quality')
 scheduleRender('full')

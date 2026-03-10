@@ -1,3 +1,69 @@
+const PALETTES = {
+    red: [
+        [18, 10, 24],
+        [76, 18, 38],
+        [166, 44, 56],
+        [244, 122, 74],
+        [255, 214, 153]
+    ],
+    green: [
+        [8, 20, 18],
+        [20, 64, 52],
+        [44, 118, 84],
+        [110, 188, 128],
+        [222, 250, 205]
+    ],
+    blue: [
+        [8, 15, 36],
+        [22, 48, 96],
+        [44, 96, 168],
+        [82, 166, 232],
+        [214, 242, 255]
+    ],
+    purple: [
+        [20, 10, 40],
+        [64, 28, 92],
+        [124, 54, 166],
+        [196, 114, 220],
+        [247, 221, 255]
+    ],
+    orange: [
+        [28, 14, 6],
+        [96, 42, 12],
+        [178, 84, 22],
+        [242, 150, 56],
+        [255, 229, 184]
+    ],
+    pink: [
+        [34, 12, 26],
+        [108, 30, 78],
+        [194, 72, 134],
+        [242, 152, 192],
+        [255, 230, 243]
+    ],
+    brown: [
+        [24, 16, 10],
+        [76, 46, 26],
+        [132, 82, 48],
+        [190, 142, 96],
+        [241, 223, 196]
+    ],
+    yellow: [
+        [24, 18, 4],
+        [102, 74, 10],
+        [188, 148, 28],
+        [244, 216, 90],
+        [255, 248, 210]
+    ],
+    cyan: [
+        [6, 20, 30],
+        [12, 78, 102],
+        [30, 144, 164],
+        [98, 216, 218],
+        [220, 250, 245]
+    ]
+}
+
 self.onmessage = (event) => {
     const {
         width,
@@ -18,9 +84,9 @@ self.onmessage = (event) => {
 
         for (let x = 0; x < width; x++) {
             const real = realSet.min + x * realScale
-            const [iteration, isInMandelbrotSet] = mandelbrot(real, imaginary, maxIteration)
+            const escapeValue = mandelbrot(real, imaginary, maxIteration)
             const pixelIndex = (y * width + x) * 4
-            const colorValue = isInMandelbrotSet ? [0, 0, 0] : getColor(color, iteration)
+            const colorValue = escapeValue === null ? [4, 4, 10] : getColor(color, escapeValue, maxIteration)
 
             pixels[pixelIndex] = colorValue[0]
             pixels[pixelIndex + 1] = colorValue[1]
@@ -49,36 +115,32 @@ function mandelbrot(real, imaginary, maxIteration) {
         iteration += 1
     }
 
-    return [iteration, zReal * zReal + zImaginary * zImaginary <= 4]
-}
-
-function getColor(color, iteration) {
-    const normalized = Math.max(1, iteration / 3)
-
-    switch (color) {
-        case 'red':
-            return [clampColor(255 / normalized), clampColor(normalized), clampColor(normalized)]
-        case 'green':
-            return [clampColor(normalized), clampColor(255 / normalized), clampColor(normalized)]
-        case 'blue':
-            return [clampColor(normalized), clampColor(normalized), clampColor(255 / normalized)]
-        case 'yellow':
-            return [clampColor(255 / normalized), clampColor(255 / normalized), clampColor(normalized)]
-        case 'orange':
-            return [clampColor(255 / normalized), clampColor(165 / normalized), clampColor(normalized)]
-        case 'purple':
-            return [clampColor(128 / normalized), clampColor(normalized), clampColor(128 / normalized)]
-        case 'pink':
-            return [clampColor(255 / normalized), clampColor(192 / normalized), clampColor(203 / normalized)]
-        case 'brown':
-            return [clampColor(165 / normalized), clampColor(42 / normalized), clampColor(42 / normalized)]
-        case 'cyan':
-            return [clampColor(normalized), clampColor(255 / normalized), clampColor(255 / normalized)]
-        default:
-            return [clampColor(normalized), clampColor(normalized), clampColor(255 / normalized)]
+    if (iteration === maxIteration) {
+        return null
     }
+
+    const magnitude = Math.sqrt(zReal * zReal + zImaginary * zImaginary)
+    const smoothValue = iteration + 1 - Math.log2(Math.log2(magnitude))
+    return Number.isFinite(smoothValue) ? smoothValue : iteration
 }
 
-function clampColor(value) {
-    return Math.max(0, Math.min(255, Math.round(value)))
+function getColor(color, escapeValue, maxIteration) {
+    const palette = PALETTES[color] || PALETTES.blue
+    const normalized = Math.max(0, Math.min(1, escapeValue / maxIteration))
+    const eased = Math.pow(normalized, 0.82)
+    const scaled = eased * (palette.length - 1)
+    const index = Math.floor(scaled)
+    const mix = scaled - index
+    const start = palette[index]
+    const end = palette[Math.min(index + 1, palette.length - 1)]
+
+    return [
+        interpolate(start[0], end[0], mix),
+        interpolate(start[1], end[1], mix),
+        interpolate(start[2], end[2], mix)
+    ]
+}
+
+function interpolate(start, end, amount) {
+    return Math.round(start + (end - start) * amount)
 }
