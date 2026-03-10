@@ -1,6 +1,6 @@
 {
     "name": "mandelbrot-visualizer",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Visualization of the Mandelbrot",
     "main": "server.js",
     "scripts": {
@@ -9,15 +9,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Dav3o/mandelbrotset.git"
+        "url": "git+https://github.com/cavoq/mandelbrotset.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/Dav3o/mandelbrotset/issues"
+        "url": "https://github.com/cavoq/mandelbrotset/issues"
     },
-    "homepage": "https://github.com/Dav3o/mandelbrotset#readme",
+    "homepage": "https://github.com/cavoq/mandelbrotset#readme",
     "dependencies": {
-        "express": "^4.17.3"
+        "express": "^5.2.1"
     }
 }
