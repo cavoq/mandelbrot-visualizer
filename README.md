@@ -13,7 +13,7 @@ The project serves a static frontend through a lightweight Express server and pr
 
 ## 📷 Preview
 
-![Mandelbrot Visualizer preview](https://user-images.githubusercontent.com/61215846/159800797-32fd6a9f-e117-470e-9361-a53e0ced978a.png)
+<img width="1415" height="1048" alt="Screenshot From 2026-03-10 22-39-17" src="https://github.com/user-attachments/assets/f23bd5b1-700b-4330-96cc-d59313706c78" />
 
 ## 🚀 Getting Started
 
