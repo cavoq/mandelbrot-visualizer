@@ -9,7 +9,8 @@ let qualityStatus = document.getElementById('quality-status')
 let renderBufferCanvas = document.createElement('canvas')
 let renderBufferContext = renderBufferCanvas.getContext('2d')
 
-let MAX_ITERATION = 220
+const BASE_MAX_ITERATION = 220
+const MAX_MAX_ITERATION = 1600
 
 const DEFAULT_REAL_SET = { min: -2, max: 1 }
 const DEFAULT_IMAGINARY_SET = { min: -1, max: 1 }
@@ -45,6 +46,15 @@ function updateRenderStatus(label, detail) {
     qualityStatus.textContent = detail
 }
 
+function getIterationCount() {
+    const defaultRealRange = DEFAULT_REAL_SET.max - DEFAULT_REAL_SET.min
+    const currentRealRange = realSet.max - realSet.min
+    const zoomFactor = defaultRealRange / currentRealRange
+    const adaptiveIterations = Math.floor(BASE_MAX_ITERATION + Math.log2(Math.max(1, zoomFactor)) * 36)
+
+    return Math.max(BASE_MAX_ITERATION, Math.min(MAX_MAX_ITERATION, adaptiveIterations))
+}
+
 renderWorker.onmessage = (event) => {
     const { renderId, width, height, pixels } = event.data
 
@@ -60,7 +70,10 @@ renderWorker.onmessage = (event) => {
         ctx.drawImage(renderBufferCanvas, 0, 0, canvas.width, canvas.height)
     }
 
-    updateRenderStatus('Ready', width === canvas.width ? 'Full quality' : 'Interactive preview')
+    updateRenderStatus(
+        'Ready',
+        `${width === canvas.width ? 'Full quality' : 'Interactive preview'} · ${getIterationCount()} iterations`
+    )
 
     if (pendingRenderQuality !== null) {
         const quality = pendingRenderQuality
@@ -92,9 +105,13 @@ function render(quality = 'full') {
 
     const renderId = ++renderSequence
     const dimensions = getRenderDimensions(quality)
+    const iterationCount = getIterationCount()
     activeRenderId = renderId
     renderInFlight = true
-    updateRenderStatus('Rendering', quality === 'full' ? 'Full quality' : 'Interactive preview')
+    updateRenderStatus(
+        'Rendering',
+        `${quality === 'full' ? 'Full quality' : 'Interactive preview'} · ${iterationCount} iterations`
+    )
 
     renderWorker.postMessage({
         renderId,
@@ -103,7 +120,7 @@ function render(quality = 'full') {
         realSet,
         imaginarySet,
         color: currentColor.value,
-        maxIteration: MAX_ITERATION
+        maxIteration: iterationCount
     })
 }
 
@@ -264,5 +281,5 @@ canvas.addEventListener('mouseleave', () => {
 })
 
 resizeCanvas()
-updateRenderStatus('Ready', 'Full quality')
+updateRenderStatus('Ready', `Full quality · ${getIterationCount()} iterations`)
 scheduleRender('full')
